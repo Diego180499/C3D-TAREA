@@ -1,0 +1,58 @@
+package org.example;
+
+import java_cup.runtime.*;
+import java.util.ArrayList;
+
+class Parser;
+
+parser code
+{:
+    ParserUtils parserUtils = new ParserUtils();
+
+    public void syntax_error(Symbol s){
+            System.out.println("Error Sintáctico en la Línea " + (s.left) +
+            " Columna "+s.right+ ". No se esperaba este componente: " +s.value+".");
+    }
+
+    public void unrecovered_syntax_error(Symbol s) throws java.lang.Exception{
+            System.out.println("Error síntactico irrecuperable en la Línea " +
+            (s.left)+ " Columna "+s.right+". Componente " + s.value +
+            " no reconocido.");
+    }
+
+
+:}
+;
+
+
+terminal String PAR_A , PAR_C , PUNTO_COMA , IGUAL , MAS , MENOS , MULT , DIV , ID, DIGITO , DECIMAL;
+
+non terminal String inicio , expr, asign, inicio_p ;
+
+precedence left MAS, MENOS;
+precedence left MULT, DIV;
+
+start with inicio_p;
+
+inicio_p ::= inicio   {:  parserUtils.mostrarC3D(); :}
+;
+
+inicio ::= asign inicio
+        |
+;
+
+//asignaciones
+asign ::= ID:valId IGUAL expr:val PUNTO_COMA   {: RESULT = parserUtils.guardarExprFinal(val,valId); :}
+;
+
+
+//expresiones
+// 2+5+(8*2)/2
+expr ::= expr:val1 MAS expr:val2            {: RESULT = parserUtils.guardarOperacion(val1,val2,"+"); :}
+        | expr:val1 MENOS expr:val2         {: RESULT = parserUtils.guardarOperacion(val1,val2,"-"); :}
+        | expr:val1 MULT expr:val2        {: RESULT = parserUtils.guardarOperacion(val1,val2,"*"); :}
+        | expr:val1 DIV expr:val2     {: RESULT = parserUtils.guardarOperacion(val1,val2,"/");  :}
+        | PAR_A expr:val PAR_C   {: RESULT = parserUtils.guardarOperacion(val,"","");   :}
+        | DIGITO:val        {: RESULT = val ; :}
+        | ID:val            {: RESULT = val; :}
+;
